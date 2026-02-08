@@ -40,8 +40,10 @@ uvicorn backend.main:app --reload
 - `GET /api/tasks`
 - `POST /api/tasks`
 - `PUT /api/tasks/{id}`
+- `DELETE /api/tasks/{id}`
 - `GET /api/boards`
 - `GET /api/boards/{id}`
+- `DELETE /api/boards/{id}`
 - `GET /api/change-log`
 - `POST /api/change-log`
 
@@ -102,10 +104,12 @@ Tasks
 }
 ```
 - `PUT /api/tasks/{id}` payload is the same as `POST /api/tasks`.
+- `DELETE /api/tasks/{id}` deletes a task (and any board cards that reference it).
 
 Boards
 - `GET /api/boards` returns all boards.
 - `GET /api/boards/{id}` returns board details with columns and cards.
+- `DELETE /api/boards/{id}` deletes a board, its columns/cards, and unassigns tasks on that board.
 
 Change Log
 - `GET /api/change-log` returns all change log entries.
