@@ -1,0 +1,77 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Communication Flow Graph</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js"></script>
+    <style>
+      #network {
+        height: 700px;
+        border: 1px solid #1f2a36;
+        border-radius: 10px;
+        background: #0f141b;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Communication Flow Graph</h1>
+      <p class="muted">Data from <code>/api/graph/employees</code> + <code>/api/graph/edges</code></p>
+      <div id="network"></div>
+    </div>
+
+    <script>
+      async function loadGraph() {
+        const [empRes, edgeRes] = await Promise.all([
+          fetch("/api/graph/employees"),
+          fetch("/api/graph/edges"),
+        ]);
+        const employees = await empRes.json();
+        const edgesRaw = await edgeRes.json();
+
+        const teamOrder = ["Exec", "Engineering", "People", "Growth", "Revenue"];
+        const teamLevel = Object.fromEntries(teamOrder.map((t, i) => [t, i]));
+        const teamColors = {
+          Exec: "#34d399",
+          Engineering: "#60a5fa",
+          People: "#f59e0b",
+          Growth: "#f472b6",
+          Revenue: "#a78bfa",
+        };
+
+        const nodes = employees.map(e => ({
+          id: e.id,
+          label: `${e.full_name}\n${e.role}`,
+          color: teamColors[e.team] || "#94a3b8",
+          title: `${e.full_name} • ${e.role} • ${e.team}`,
+          level: teamLevel[e.team] ?? 0,
+        }));
+
+        const edges = edgesRaw.map((e, idx) => ({
+          id: "e" + idx,
+          from: e.from_employee_id,
+          to: e.to_employee_id,
+          value: e.weight || 1,
+          title: `${e.channel}/${e.capacity} • msgs:${e.message_count_30d}`,
+        }));
+
+        const container = document.getElementById("network");
+        const network = new vis.Network(container, { nodes, edges }, {
+          physics: { enabled: false },
+          layout: {
+            hierarchical: {
+              enabled: true,
+              direction: "LR",
+              sortMethod: "directed",
+              levelSeparation: 220,
+              nodeSpacing: 120,
+            }
+          },
+          edges: { smooth: true }
+        });
+      }
+      loadGraph();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,61 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Department Communication Graph</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js"></script>
+    <style>
+      #network {
+        height: 600px;
+        border: 1px solid #1f2a36;
+        border-radius: 10px;
+        background: #0f141b;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Department Communication Graph</h1>
+      <p class="muted">Aggregated communication flow between roles (CEO, CTO, SWE, HR, Marketing, Sales).</p>
+      <div id="network"></div>
+    </div>
+
+    <script>
+      async function loadGraph() {
+        const res = await fetch("/api/graph/departments");
+        const data = await res.json();
+
+        const teamColors = {
+          CEO: "#34d399",
+          CTO: "#60a5fa",
+          SWE: "#93c5fd",
+          HR: "#f59e0b",
+          Marketing: "#f472b6",
+          Sales: "#a78bfa",
+        };
+
+        const nodes = data.nodes.map(n => ({
+          id: n.id,
+          label: n.label,
+          color: teamColors[n.id] || "#94a3b8",
+        }));
+
+        const edges = data.edges.map((e, idx) => ({
+          id: "e" + idx,
+          from: e.source,
+          to: e.target,
+          value: e.weight || 1,
+          title: `weight: ${e.weight}`,
+        }));
+
+        const container = document.getElementById("network");
+        new vis.Network(container, { nodes, edges }, {
+          physics: { enabled: false },
+          edges: { arrows: "to", smooth: true }
+        });
+      }
+      loadGraph();
+    </script>
+  </body>
+</html>

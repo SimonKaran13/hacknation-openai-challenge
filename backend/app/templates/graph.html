@@ -1,0 +1,117 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Communications Graph</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <h1>Communications Graph</h1>
+      <div class="row">
+        <div class="card">
+          <h2>Top Edges (by weight)</h2>
+          <div class="muted">Nodes: {{ summary.nodes }} • Edges: {{ summary.edges }}</div>
+          <table>
+            <thead>
+              <tr>
+                <th>From</th>
+                <th>To</th>
+                <th>Channel</th>
+                <th>Capacity</th>
+                <th>Weight</th>
+                <th>Msgs(30d)</th>
+                <th>Last</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for e in top_edges %}
+              <tr>
+                <td>{{ e.from_employee.full_name }}</td>
+                <td>{{ e.to_employee.full_name }}</td>
+                <td>{{ e.channel }}</td>
+                <td>{{ e.capacity }}</td>
+                <td>{{ '%.2f'|format(e.weight) }}</td>
+                <td>{{ e.message_count_30d }}</td>
+                <td>{{ e.last_interaction_at.strftime('%Y-%m-%d') }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card">
+          <h2>Top Stakeholders</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Top Senders</th>
+                <th>Top Receivers</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for i in range(10) %}
+              <tr>
+                <td>
+                  {% if summary.top_senders|length > i %}
+                    {% set sender = employees | selectattr("id", "equalto", summary.top_senders[i][0]) | list | first %}
+                    {{ sender.full_name if sender else "" }}
+                    ({{ '%.2f'|format(summary.top_senders[i][1]) }})
+                  {% endif %}
+                </td>
+                <td>
+                  {% if summary.top_receivers|length > i %}
+                    {% set receiver = employees | selectattr("id", "equalto", summary.top_receivers[i][0]) | list | first %}
+                    {{ receiver.full_name if receiver else "" }}
+                    ({{ '%.2f'|format(summary.top_receivers[i][1]) }})
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card">
+          <h2>Top Contacts per Employee</h2>
+          <form method="get" action="/graph">
+            <label for="employee_id">Employee:</label>
+            <select name="employee_id" id="employee_id">
+              <option value="">-- select --</option>
+              {% for e in employees %}
+              <option value="{{ e.id }}" {% if selected_employee_id == e.id %}selected{% endif %}>
+                {{ e.full_name }} ({{ e.role }})
+              </option>
+              {% endfor %}
+            </select>
+            <button type="submit">Show</button>
+          </form>
+          {% if top_contacts %}
+          <table>
+            <thead>
+              <tr>
+                <th>To</th>
+                <th>Channel</th>
+                <th>Capacity</th>
+                <th>Weight</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for e in top_contacts %}
+              <tr>
+                <td>{{ e.to_employee.full_name }}</td>
+                <td>{{ e.channel }}</td>
+                <td>{{ e.capacity }}</td>
+                <td>{{ '%.2f'|format(e.weight) }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          {% else %}
+          <p class="muted">Choose an employee to see top contacts.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

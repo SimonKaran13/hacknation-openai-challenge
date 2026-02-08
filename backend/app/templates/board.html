@@ -1,0 +1,27 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>{{ board.name }}</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <h1>{{ board.name }}</h1>
+      <p class="muted">{{ board.description }}</p>
+      <div class="kanban">
+        {% for col in columns %}
+        <div class="kanban-col">
+          <h3>{{ col.name }}</h3>
+          {% for card in col.cards %}
+          <div class="card">
+            <div class="title">{{ card.task.title }}</div>
+            <div class="meta">{{ card.task.priority }} • {{ card.task.status }}</div>
+          </div>
+          {% endfor %}
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </body>
+</html>
