@@ -6,6 +6,9 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
 from pathlib import Path
+from urllib.request import Request, urlopen
+from urllib.error import HTTPError, URLError
+import os
 
 
 FIELD_MAP = {
@@ -40,6 +43,15 @@ CAPACITY_RULES = {
 
 # Set to None to process all records
 MAX_RECORDS = 500
+
+# LLM enrichment (optional)
+LLM_MODE = "openai_compat"  # "off" | "openai_compat"
+LLM_ENDPOINT = "https://api.openai.com/v1/chat/completions"
+LLM_MODEL = "gpt-4o-mini"
+LLM_API_KEY_ENV = "OPENAI_API_KEY"
+LLM_TIMEOUT_SECONDS = 10
+LLM_MAX_CALLS = 100
+ENRON_DOMAIN = "enron.com"
 
 
 @dataclass
@@ -117,6 +129,89 @@ def _infer_name(email):
     local = email.split("@", 1)[0]
     parts = re.split(r"[._-]+", local)
     return " ".join(p.capitalize() for p in parts if p)
+
+
+def _email_domain(email):
+    return email.split("@", 1)[-1].lower() if "@" in email else ""
+
+
+def _is_enron_sender(email):
+    return _email_domain(email).endswith(ENRON_DOMAIN)
+
+
+def _llm_enrich(record: "EmailRecord"):
+    if LLM_MODE != "openai_compat":
+        return {
+            "role": "Unknown",
+            "team": "Unknown",
+            "task_title": "Unknown",
+            "task_description": "Unknown",
+        }
+
+    api_key = os.getenv(LLM_API_KEY_ENV)
+    if not api_key:
+        print("LLM disabled: OPENAI_API_KEY not set.")
+        return {
+            "role": "Unknown",
+            "team": "Unknown",
+            "task_title": "Unknown",
+            "task_description": "Unknown",
+        }
+
+    system = (
+        "You extract roles, teams, and task candidates from email text. "
+        "If unknown, return 'Unknown'. Return only JSON."
+    )
+    user = (
+        f"From: {record.sender}\n"
+        f"To: {', '.join(record.recipients)}\n"
+        f"Subject: {record.subject}\n"
+        f"Body: {record.body[:2000]}"
+    )
+    payload = {
+        "model": LLM_MODEL,
+        "messages": [
+            {"role": "system", "content": system},
+            {"role": "user", "content": user},
+        ],
+        "temperature": 0.0,
+        "response_format": {"type": "json_object"},
+    }
+    req = Request(
+        LLM_ENDPOINT,
+        data=json.dumps(payload).encode("utf-8"),
+        headers={
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {api_key}",
+        },
+        method="POST",
+    )
+    try:
+        print("LLM call...")
+        with urlopen(req, timeout=LLM_TIMEOUT_SECONDS) as resp:
+            body = resp.read().decode("utf-8")
+        data = json.loads(body)
+        content = data["choices"][0]["message"]["content"]
+        parsed = json.loads(content)
+        return {
+            "role": parsed.get("role", "Unknown") or "Unknown",
+            "team": parsed.get("team", "Unknown") or "Unknown",
+            "task_title": parsed.get("task_title", "Unknown") or "Unknown",
+            "task_description": parsed.get("task_description", "Unknown") or "Unknown",
+        }
+    except HTTPError as exc:
+        err_body = exc.read().decode("utf-8") if exc.fp else ""
+        print(f"LLM HTTP error: {exc.code} {exc.reason} {err_body}")
+    except URLError as exc:
+        print(f"LLM URL error: {exc.reason}")
+    except Exception as exc:
+        print(f"LLM error: {exc}")
+        return {
+            "role": "Unknown",
+            "team": "Unknown",
+            "task_title": "Unknown",
+            "task_description": "Unknown",
+        }
 
 
 def _iter_json_array(fp):
@@ -200,6 +295,8 @@ def iter_records(path: Path):
             ]
             recipients = [r for r in recipients if r and r != sender]
             if not sender or not recipients:
+                continue
+            if not _is_enron_sender(sender):
                 continue
 
             yield EmailRecord(
@@ -287,6 +384,20 @@ def ensure_schema(conn: sqlite3.Connection):
             column_id INTEGER NOT NULL,
             order_index INTEGER NOT NULL
         );
+
+        CREATE TABLE IF NOT EXISTS inferred_employee (
+            id INTEGER PRIMARY KEY,
+            email TEXT NOT NULL,
+            role TEXT NOT NULL,
+            team TEXT NOT NULL
+        );
+
+        CREATE TABLE IF NOT EXISTS inferred_tasks (
+            id INTEGER PRIMARY KEY,
+            email TEXT NOT NULL,
+            title TEXT NOT NULL,
+            description TEXT NOT NULL
+        );
         """
     )
 
@@ -329,7 +440,18 @@ def seed_from_emails(conn: sqlite3.Connection, records_iter, max_records: int | 
     edge_map = {}
     max_ts = None
     processed = 0
+    llm_calls = 0
     for rec in records_iter:
+        if llm_calls < LLM_MAX_CALLS:
+            llm = _llm_enrich(rec)
+            llm_calls += 1
+        else:
+            llm = {
+                "role": "Unknown",
+                "team": "Unknown",
+                "task_title": "Unknown",
+                "task_description": "Unknown",
+            }
         from_id = get_employee_id(rec.sender, rec.timestamp)
         for r in rec.recipients:
             to_id = get_employee_id(r, rec.timestamp)
@@ -369,7 +491,24 @@ def seed_from_emails(conn: sqlite3.Connection, records_iter, max_records: int | 
             )
             events_batch = []
 
+        conn.execute(
+            """
+            INSERT INTO inferred_employee (email, role, team)
+            VALUES (?, ?, ?)
+            """,
+            (rec.sender, llm["role"], llm["team"]),
+        )
+        conn.execute(
+            """
+            INSERT INTO inferred_tasks (email, title, description)
+            VALUES (?, ?, ?)
+            """,
+            (rec.sender, llm["task_title"], llm["task_description"]),
+        )
+
         processed += 1
+        if processed % 50 == 0:
+            print(f"Processed {processed} records")
         if max_records is not None and processed >= max_records:
             break
 

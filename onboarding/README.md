@@ -34,6 +34,8 @@ The pipeline also supports a dict-of-threads format (like `threaded_emails.json`
 - If your dataset has different keys, update `FIELD_MAP` in `onboarding/pipeline.py`.
 - The loader supports large JSON arrays by streaming records (no full-file load).
 - To limit ingestion size, set `MAX_RECORDS` in `onboarding/pipeline.py` (set to `None` for all).
+- Only emails **from** `enron.com` senders are ingested.
+- Optional LLM enrichment can be enabled in `onboarding/pipeline.py` (`LLM_MODE`, `LLM_ENDPOINT`, `LLM_MODEL`). When disabled, role/team/task are set to `Unknown`.
 
 ## Enron Dataset Example
 If you used KaggleHub, the files are typically here:
