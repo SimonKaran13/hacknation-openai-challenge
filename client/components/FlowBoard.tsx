@@ -42,7 +42,37 @@ StatusNode.displayName = "StatusNode";
 
 const nodeTypes = { statusNode: StatusNode };
 
+const hashToOffset = (value: string): number => {
+  let hash = 0;
+  for (let i = 0; i < value.length; i += 1) {
+    hash = (hash * 31 + value.charCodeAt(i)) % 5;
+  }
+  return 20 + hash * 10;
+};
+
 export function FlowBoard({ nodes, edges, selectedNodeId, onNodeSelect }: Props) {
+  const translateExtent = useMemo<[[number, number], [number, number]]>(() => {
+    if (!nodes.length) {
+      return [
+        [-400, -300],
+        [1120, 760],
+      ];
+    }
+
+    const minX = Math.min(...nodes.map((node) => node.x));
+    const maxX = Math.max(...nodes.map((node) => node.x));
+    const minY = Math.min(...nodes.map((node) => node.y));
+    const maxY = Math.max(...nodes.map((node) => node.y));
+    const nodeWidth = 180;
+    const nodeHeight = 64;
+    const viewportPadding = 280;
+
+    return [
+      [minX - viewportPadding, minY - viewportPadding],
+      [maxX + nodeWidth + viewportPadding, maxY + nodeHeight + viewportPadding],
+    ];
+  }, [nodes]);
+
   const flowNodes = useMemo<Node<FlowNodeData>[]>(
     () =>
       nodes.map((node) => ({
@@ -69,12 +99,21 @@ export function FlowBoard({ nodes, edges, selectedNodeId, onNodeSelect }: Props)
         type: "smoothstep",
         animated: edge.status !== "aligned",
         className: `flow-edge ${edge.status}`,
+        pathOptions: {
+          offset: hashToOffset(`${edge.source}->${edge.target}`),
+          borderRadius: 10,
+        },
         markerEnd: {
           type: MarkerType.ArrowClosed,
           color: edge.status === "conflict" ? "#f97373" : edge.status === "pending" ? "#fbbf24" : "#60a5fa",
         },
         style: {
-          strokeWidth: edge.status === "conflict" ? 2.2 : 1.8,
+          strokeWidth:
+            edge.status === "conflict"
+              ? 2.4
+              : edge.weight
+                ? Math.max(1.4, Math.min(4.2, 1.2 + edge.weight * 0.45))
+                : 1.8,
         },
       })),
     [edges]
@@ -86,10 +125,11 @@ export function FlowBoard({ nodes, edges, selectedNodeId, onNodeSelect }: Props)
       edges={flowEdges}
       fitView
       fitViewOptions={{ padding: 0.18 }}
+      translateExtent={translateExtent}
       nodeTypes={nodeTypes}
       onNodeClick={(_, node) => onNodeSelect(node.id)}
       proOptions={{ hideAttribution: true }}
-      panOnDrag={false}
+      panOnDrag
       zoomOnScroll={false}
       zoomOnPinch={false}
       zoomOnDoubleClick={false}

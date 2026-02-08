@@ -224,6 +224,38 @@ body {
   font-weight: 500;
 }
 
+.graph-header-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.graph-view-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 3px;
+  background: rgba(255, 255, 255, 0.76);
+}
+
+.graph-view-btn {
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #475569;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 4px 8px;
+  cursor: pointer;
+}
+
+.graph-view-btn.active {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
 .conflict-list,
 .log-list,
 .timeline-list {
@@ -517,6 +549,11 @@ body {
 
   .command-row {
     grid-template-columns: 1fr;
+  }
+
+  .graph-header-controls {
+    align-items: flex-end;
+    flex-direction: column;
   }
 }
 

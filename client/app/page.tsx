@@ -21,19 +21,31 @@ const rise = {
   animate: { opacity: 1, y: 0 },
 };
 
+type GraphView = "knowledge" | "departments" | "employees";
+
+const GRAPH_VIEWS: Array<{ id: GraphView; label: string }> = [
+  { id: "knowledge", label: "Knowledge" },
+  { id: "departments", label: "Departments" },
+  { id: "employees", label: "Employees" },
+];
+
 export default function Home() {
   const [state, setState] = useState<DemoState>(makeInitialState);
   const [command, setCommand] = useState("What changed today?");
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [pulse, setPulse] = useState<"idle" | "meeting" | "resolve" | "query">("idle");
+  const [graphView, setGraphView] = useState<GraphView>("knowledge");
 
   useEffect(() => {
     let canceled = false;
 
     const loadGraphFromApi = async () => {
-      setState((prev) => ({ ...prev, graphState: "Loading graph from API..." }));
+      setState((prev) => ({
+        ...prev,
+        graphState: `Loading ${graphView} graph from API...`,
+      }));
       try {
-        const response = await fetch("/api/graph/live", { cache: "no-store" });
+        const response = await fetch(`/api/graph/live?view=${graphView}`);
         if (!response.ok) {
           throw new Error(`Graph API failed with status ${response.status}`);
         }
@@ -41,7 +53,13 @@ export default function Home() {
         const payload = (await response.json()) as {
           nodes: DemoState["nodes"];
           edges: DemoState["edges"];
+          error?: string;
+          view?: GraphView;
         };
+
+        if (!Array.isArray(payload.nodes) || payload.nodes.length === 0) {
+          throw new Error(payload.error ?? "Graph API returned no nodes.");
+        }
 
         if (canceled) {
           return;
@@ -51,7 +69,7 @@ export default function Home() {
           ...prev,
           nodes: payload.nodes,
           edges: payload.edges,
-          graphState: `Live API graph (${payload.nodes.length} nodes, ${payload.edges.length} edges)`,
+          graphState: `${payload.view ?? graphView} graph (${payload.nodes.length} nodes, ${payload.edges.length} edges)`,
         }));
       } catch {
         if (canceled) {
@@ -59,7 +77,7 @@ export default function Home() {
         }
         setState((prev) => ({
           ...prev,
-          graphState: "Backend API unavailable; using local fallback graph.",
+          graphState: `Backend unavailable for ${graphView}; using local fallback graph.`,
         }));
       }
     };
@@ -68,7 +86,7 @@ export default function Home() {
     return () => {
       canceled = true;
     };
-  }, []);
+  }, [graphView]);
 
   useEffect(() => {
     if (!selectedNodeId) {
@@ -339,8 +357,24 @@ export default function Home() {
             transition={{ duration: 0.45, delay: 0.14 }}
           >
             <div className="panel-header">
-              <h2>Living Knowledge Graph</h2>
-              <span>{state.graphState}</span>
+              <h2>Living Graph</h2>
+              <div className="graph-header-controls">
+                <div className="graph-view-toggle" role="tablist" aria-label="Graph view">
+                  {GRAPH_VIEWS.map((view) => (
+                    <button
+                      key={view.id}
+                      type="button"
+                      role="tab"
+                      aria-selected={graphView === view.id}
+                      className={`graph-view-btn ${graphView === view.id ? "active" : ""}`}
+                      onClick={() => setGraphView(view.id)}
+                    >
+                      {view.label}
+                    </button>
+                  ))}
+                </div>
+                <span>{state.graphState}</span>
+              </div>
             </div>
             <div className="graph-wrap">
               <FlowBoard
