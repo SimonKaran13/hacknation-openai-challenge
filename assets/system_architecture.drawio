@@ -1,0 +1,90 @@
+<mxfile host="65bd71144e">
+    <diagram id="ipAwqEgYeOgS8x5OA90X" name="Page-1">
+        <mxGraphModel dx="207" dy="182" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="14" value="" style="edgeStyle=none;html=1;startArrow=classic;startFill=1;" edge="1" parent="1" source="2" target="12">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="2" value="communication&lt;div&gt;employees&lt;/div&gt;&lt;div&gt;tasks&lt;/div&gt;" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;" vertex="1" parent="1">
+                    <mxGeometry x="640" y="60" width="100" height="90" as="geometry"/>
+                </mxCell>
+                <mxCell id="13" value="" style="edgeStyle=none;html=1;" edge="1" parent="1" source="5" target="11">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="5" value="Communication" style="rounded=0;whiteSpace=wrap;html=1;verticalAlign=top;" vertex="1" parent="1">
+                    <mxGeometry x="40" y="40" width="180" height="130" as="geometry"/>
+                </mxCell>
+                <mxCell id="6" value="" style="shape=message;html=1;html=1;outlineConnect=0;labelPosition=center;verticalLabelPosition=bottom;align=center;verticalAlign=top;" vertex="1" parent="1">
+                    <mxGeometry x="140" y="70" width="60" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="7" value="" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;size=24;" vertex="1" parent="1">
+                    <mxGeometry x="60" y="70" width="70" height="90" as="geometry"/>
+                </mxCell>
+                <mxCell id="8" value="" style="shape=callout;whiteSpace=wrap;html=1;perimeter=calloutPerimeter;size=10;position=0.5;base=10;" vertex="1" parent="1">
+                    <mxGeometry x="145" y="120" width="55" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="17" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.25;entryY=0;entryDx=0;entryDy=0;rounded=0;" edge="1" parent="1" source="11" target="12">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="340" y="40"/>
+                            <mxPoint x="480" y="40"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="18" value="Manipulate Data" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="17">
+                    <mxGeometry x="-0.1965" y="-3" relative="1" as="geometry">
+                        <mxPoint x="22" y="-13" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="11" value="AI Agents" style="rounded=0;whiteSpace=wrap;html=1;verticalAlign=top;" vertex="1" parent="1">
+                    <mxGeometry x="262" y="60" width="160" height="90" as="geometry"/>
+                </mxCell>
+                <mxCell id="16" style="edgeStyle=none;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="12" target="15">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="21" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=0.25;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;rounded=0;curved=0;" edge="1" parent="1" source="12" target="11">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="480" y="180"/>
+                            <mxPoint x="342" y="180"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="22" value="Get Data" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="21">
+                    <mxGeometry x="0.22" y="1" relative="1" as="geometry">
+                        <mxPoint x="27" y="-11" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="12" value="API" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="450" y="75" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="15" value="Dashboard" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="450" y="200" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="30" value="" style="group" vertex="1" connectable="0" parent="1">
+                    <mxGeometry x="264" y="82" width="156" height="65" as="geometry"/>
+                </mxCell>
+                <mxCell id="24" value="&lt;p data-pm-slice=&quot;1 1 []&quot;&gt;creates tasks&amp;nbsp;&lt;/p&gt;" style="rounded=0;whiteSpace=wrap;html=1;fontSize=7;" vertex="1" parent="30">
+                    <mxGeometry width="76" height="19" as="geometry"/>
+                </mxCell>
+                <mxCell id="25" value="&lt;p data-pm-slice=&quot;1 1 []&quot;&gt;summarization &amp;amp; memory&amp;nbsp;&lt;/p&gt;" style="rounded=0;whiteSpace=wrap;html=1;fontSize=7;" vertex="1" parent="30">
+                    <mxGeometry x="80" width="76" height="19" as="geometry"/>
+                </mxCell>
+                <mxCell id="26" value="&lt;p data-pm-slice=&quot;1 1 []&quot;&gt;build organizational knowledge graph&amp;nbsp;&lt;/p&gt;" style="rounded=0;whiteSpace=wrap;html=1;fontSize=7;" vertex="1" parent="30">
+                    <mxGeometry y="23" width="76" height="19" as="geometry"/>
+                </mxCell>
+                <mxCell id="27" value="&lt;p data-pm-slice=&quot;1 1 []&quot;&gt;maintains orga graph&amp;nbsp;&lt;/p&gt;" style="rounded=0;whiteSpace=wrap;html=1;fontSize=7;" vertex="1" parent="30">
+                    <mxGeometry x="80" y="23" width="76" height="19" as="geometry"/>
+                </mxCell>
+                <mxCell id="28" value="&lt;p data-pm-slice=&quot;1 1 []&quot;&gt;contacts stakholders&amp;nbsp;&lt;/p&gt;" style="rounded=0;whiteSpace=wrap;html=1;fontSize=7;" vertex="1" parent="30">
+                    <mxGeometry y="46" width="76" height="19" as="geometry"/>
+                </mxCell>
+                <mxCell id="29" value="&lt;p data-pm-slice=&quot;1 1 []&quot;&gt;document parsing&lt;/p&gt;" style="rounded=0;whiteSpace=wrap;html=1;fontSize=7;" vertex="1" parent="30">
+                    <mxGeometry x="80" y="46" width="76" height="19" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>
