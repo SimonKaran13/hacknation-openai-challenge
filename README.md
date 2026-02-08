@@ -69,6 +69,7 @@ cd client
 pnpm run dev
 ```
 Open: `http://localhost:3000`
+See `client/CLIENT.md` for frontend-specific details.
 
 ### Agent (External)
 The agent is **not part of this repo** and runs in the cloud. It should send structured updates to the backend API (e.g., create/update tasks, employees, comm events, change log entries). See `backend/BACKEND.md` for the full list of API calls and payloads.
