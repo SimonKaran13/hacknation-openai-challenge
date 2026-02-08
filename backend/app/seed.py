@@ -1,4 +1,4 @@
-import json
+﻿import json
 import random
 from datetime import date, datetime, timedelta
 from pathlib import Path
@@ -17,10 +17,8 @@ from .models import (
 
 def seed_employees(session):
     employees = [
-        # Exec
         (1, "Helena Richter", "CEO", "Exec", "helena.richter@acme.com", "helena.ceo", None, "Munich", date(2017, 4, 3)),
         (2, "Lukas Vogel", "CTO", "Exec", "lukas.vogel@acme.com", "lukas.cto", 1, "Berlin", date(2018, 1, 15)),
-        # Engineering (10)
         (3, "Ava Mueller", "SWE", "Engineering", "ava.mueller@acme.com", "ava.eng", 2, "Munich", date(2019, 6, 1)),
         (4, "Noah Stein", "SWE", "Engineering", "noah.stein@acme.com", "noah.eng", 2, "Berlin", date(2020, 2, 10)),
         (5, "Maya Ortiz", "SWE", "Engineering", "maya.ortiz@acme.com", "maya.eng", 2, "Remote", date(2020, 9, 7)),
@@ -31,14 +29,11 @@ def seed_employees(session):
         (10, "Jonas Weber", "SWE", "Engineering", "jonas.weber@acme.com", "jonas.eng", 2, "Berlin", date(2022, 8, 22)),
         (11, "Emma Fischer", "SWE", "Engineering", "emma.fischer@acme.com", "emma.eng", 2, "Remote", date(2023, 1, 9)),
         (12, "David Klein", "SWE", "Engineering", "david.klein@acme.com", "david.eng", 2, "Munich", date(2023, 6, 5)),
-        # HR (2)
         (13, "Lea Hoffmann", "HR", "People", "lea.hoffmann@acme.com", "lea.hr", 1, "Munich", date(2019, 2, 4)),
         (14, "Tobias Berg", "HR", "People", "tobias.berg@acme.com", "tobias.hr", 1, "Berlin", date(2021, 11, 1)),
-        # Marketing (3) -> report to CEO (consistent)
         (15, "Nina Schaefer", "Marketing", "Growth", "nina.schaefer@acme.com", "nina.mktg", 1, "Berlin", date(2019, 9, 16)),
         (16, "Felix Braun", "Marketing", "Growth", "felix.braun@acme.com", "felix.mktg", 1, "Munich", date(2020, 4, 20)),
         (17, "Clara Wolf", "Marketing", "Growth", "clara.wolf@acme.com", "clara.mktg", 1, "Remote", date(2021, 6, 28)),
-        # Sales (3) -> report to CEO
         (18, "Oliver Hahn", "Sales", "Revenue", "oliver.hahn@acme.com", "oliver.sales", 1, "Berlin", date(2018, 11, 5)),
         (19, "Mia Schubert", "Sales", "Revenue", "mia.schubert@acme.com", "mia.sales", 1, "Munich", date(2020, 10, 12)),
         (20, "Samuel Koch", "Sales", "Revenue", "samuel.koch@acme.com", "samuel.sales", 1, "Remote", date(2022, 2, 14)),
@@ -92,7 +87,6 @@ def seed_comm_events_and_edges(session):
             )
         )
 
-    # Engineers ↔ Engineers + CTO
     engineers = list(range(3, 13))
     for e in engineers:
         add_event(e, 2, "discord", "coordination", "release", "Align on sprint priorities", random.randint(1, 20))
@@ -103,7 +97,6 @@ def seed_comm_events_and_edges(session):
             if random.random() < 0.35:
                 add_event(e1, e2, "discord", "support", "bugfix", "Pair debugging session", random.randint(1, 30))
 
-    # Sales ↔ Sales + CEO + engineers
     sales = [18, 19, 20]
     for s in sales:
         add_event(s, 1, "email", "decision", "pricing", "Customer pricing escalation", random.randint(1, 15))
@@ -111,14 +104,12 @@ def seed_comm_events_and_edges(session):
         eng = random.choice(engineers)
         add_event(s, eng, "email", "coordination", "enterprise_request", "Feature request from prospect", random.randint(1, 25))
 
-    # Marketing ↔ CEO + Sales + engineers
     marketing = [15, 16, 17]
     for m in marketing:
         add_event(m, 1, "meeting", "coordination", "marketing_launch", "Launch planning sync", random.randint(1, 20))
         add_event(m, random.choice(sales), "email", "FYI", "marketing_launch", "Campaign asset share", random.randint(1, 25))
         add_event(m, random.choice(engineers), "docs", "support", "performance", "Landing page perf review", random.randint(1, 28))
 
-    # HR ↔ CEO + CTO + everyone lightly
     hr = [13, 14]
     for h in hr:
         add_event(h, 1, "meeting", "decision", "hiring", "Headcount review", random.randint(1, 20))
@@ -127,13 +118,11 @@ def seed_comm_events_and_edges(session):
             if random.random() < 0.25:
                 add_event(h, e, "email", "support", "onboarding", "Onboarding check-in", random.randint(1, 30))
 
-    # CEO ↔ CTO direct alignment
     add_event(1, 2, "meeting", "decision", "roadmap", "Exec alignment on roadmap", random.randint(1, 10))
     add_event(2, 1, "email", "FYI", "release", "CTO weekly update", random.randint(1, 12))
     add_event(1, 2, "discord", "coordination", "performance", "Follow-up on perf risks", random.randint(1, 15))
     add_event(2, 1, "meeting", "decision", "security", "Security posture review", random.randint(1, 18))
 
-    # Aggregate to comm_edges
     session.flush()
     events = session.query(CommEvent).all()
     edge_map = {}
@@ -214,7 +203,6 @@ def seed_boards_and_tasks(session):
             parent_board_id=board_id,
         )
 
-    # Personal tasks: every employee has at least 1
     for emp_id in range(1, 21):
         task = mk_task(
             title=f"Personal task for {emp_id}",
@@ -232,7 +220,6 @@ def seed_boards_and_tasks(session):
 
     session.flush()
 
-    # Engineering board tasks (~20)
     eng_tasks = [
         ("Refactor auth service", "Break auth monolith into services.", "in_progress", "high", 3),
         ("Improve build times", "Cache dependencies and parallelize jobs.", "todo", "medium", 4),
@@ -274,7 +261,6 @@ def seed_boards_and_tasks(session):
 
     session.flush()
 
-    # Go-to-market board tasks (~15)
     gtm_tasks = [
         ("Launch webinar", "Plan webinar with key customers.", "todo", "high", 15),
         ("Pricing page update", "Revise pricing copy for enterprise.", "in_progress", "high", 16),
@@ -311,7 +297,6 @@ def seed_boards_and_tasks(session):
 
     session.flush()
 
-    # Board cards for board tasks only
     tasks = session.query(Task).filter(Task.parent_board_id.isnot(None)).all()
     col_map = {}
     for c in board_columns:

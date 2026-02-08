@@ -146,7 +146,6 @@ def api_edges():
 def api_create_comm_event(payload: CommEventIn):
     session = get_session()
     try:
-        # Create event
         event = CommEvent(
             timestamp=payload.timestamp,
             from_employee_id=payload.from_employee_id,
@@ -158,7 +157,6 @@ def api_create_comm_event(payload: CommEventIn):
         )
         session.add(event)
 
-        # Upsert edge aggregate
         edge = (
             session.query(CommEdge)
             .filter(CommEdge.from_employee_id == payload.from_employee_id)
@@ -174,7 +172,6 @@ def api_create_comm_event(payload: CommEventIn):
             topics = set(json.loads(edge.topics))
             topics.add(payload.topic)
             edge.topics = json.dumps(sorted(topics))
-            # simple recency factor: 1.0 if within 30 days, else 0.5
             days_ago = (datetime.utcnow() - edge.last_interaction_at).days
             recency_factor = 1.0 if days_ago <= 30 else 0.5
             edge.weight = round(edge.message_count_30d * recency_factor, 3)
