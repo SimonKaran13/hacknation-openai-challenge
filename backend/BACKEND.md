@@ -7,6 +7,10 @@ Minimal backend project with:
 ## Setup
 See `README.md` in the repo root for environment setup and dependencies.
 
+### Database Configuration
+- Local dev defaults to SQLite at `backend/data/org.db`.
+- To use Postgres, set `DATABASE_URL` (example: `postgres://user:pass@host:5432/db`).
+
 ## Seed the DB
 ```bash
 python -m backend.app.seed
@@ -40,6 +44,7 @@ uvicorn backend.main:app --reload
 - `GET /api/boards/{id}`
 
 ### JSON API Payloads
+Base URL (prod): `https://hacknation-openai-challenge.onrender.com`
 Base URL (local): `http://127.0.0.1:8000`
 
 Employees

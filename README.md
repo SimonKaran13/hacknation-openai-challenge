@@ -15,3 +15,6 @@ pip install -r requirements.txt
 
 ## Backend
 See `backend/BACKEND.md` for backend-specific usage (seeding, running the server, API details).
+
+## Database
+Local dev uses SQLite by default. For production, set `DATABASE_URL` to a Postgres connection string.
