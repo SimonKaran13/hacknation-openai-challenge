@@ -252,10 +252,8 @@ export default function Home() {
   };
 
   return (
-    <div className="app-shell">
-      <div className="app-bg" />
-      <div className="app-grid">
-        <motion.header
+    <>
+      <motion.header
           className="hero-card"
           variants={rise}
           initial="initial"
@@ -298,7 +296,7 @@ export default function Home() {
           </div>
         </motion.header>
 
-        <main className="layout">
+      <main className="layout">
           <motion.section
             className="panel"
             variants={rise}
@@ -465,8 +463,7 @@ export default function Home() {
               </ol>
             </div>
           </motion.section>
-        </main>
-      </div>
-    </div>
+      </main>
+    </>
   );
 }

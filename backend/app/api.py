@@ -373,6 +373,21 @@ def api_update_task(task_id: int, payload: TaskIn):
         session.close()
 
 
+@app.delete("/api/tasks/{task_id}")
+def api_delete_task(task_id: int):
+    session = get_session()
+    try:
+        task = session.query(Task).filter(Task.id == task_id).first()
+        if not task:
+            raise HTTPException(status_code=404, detail="Task not found")
+        session.query(BoardCard).filter(BoardCard.task_id == task_id).delete(synchronize_session=False)
+        session.delete(task)
+        session.commit()
+        return {"status": "deleted"}
+    finally:
+        session.close()
+
+
 @app.get("/api/boards")
 def api_boards():
     session = get_session()
@@ -479,6 +494,23 @@ def api_create_change_log(payload: ChangeLogIn):
         session.commit()
         session.refresh(entry)
         return {"id": entry.id}
+
+@app.delete("/api/boards/{board_id}")
+def api_delete_board(board_id: int):
+    session = get_session()
+    try:
+        board = session.query(Board).filter(Board.id == board_id).first()
+        if not board:
+            raise HTTPException(status_code=404, detail="Board not found")
+        session.query(BoardCard).filter(BoardCard.board_id == board_id).delete(synchronize_session=False)
+        session.query(BoardColumn).filter(BoardColumn.board_id == board_id).delete(synchronize_session=False)
+        session.query(Task).filter(Task.parent_board_id == board_id).update(
+            {Task.parent_board_id: None},
+            synchronize_session=False,
+        )
+        session.delete(board)
+        session.commit()
+        return {"status": "deleted"}
     finally:
         session.close()
 

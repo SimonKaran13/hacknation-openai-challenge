@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SideNav } from "@/components/SideNav";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -13,7 +14,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <div className="app-frame">
+          <SideNav />
+          <div className="app-shell">
+            <div className="app-bg" />
+            <div className="app-grid">{children}</div>
+          </div>
+        </div>
+      </body>
     </html>
   );
 }
