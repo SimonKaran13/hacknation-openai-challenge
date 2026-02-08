@@ -159,8 +159,12 @@ def _llm_enrich(record: "EmailRecord"):
         }
 
     system = (
-        "You extract roles, teams, and task candidates from email text. "
-        "If unknown, return 'Unknown'. Return only JSON."
+        "You are a precise information extractor. "
+        "Given an email, infer the sender's role and team (if possible) and extract a single concrete task implied by the email. "
+        "If the role/team/task cannot be inferred from the email, set the value to 'Unknown'. "
+        "Return only JSON with keys: role, team, task_title, task_description. "
+        "Keep task_title short (3-8 words) and task_description one sentence. "
+        "Do not guess beyond the email content."
     )
     user = (
         f"From: {record.sender}\n"
