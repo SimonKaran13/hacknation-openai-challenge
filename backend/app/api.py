@@ -10,7 +10,16 @@ from pydantic import BaseModel
 from pathlib import Path
 
 from .db import SessionLocal
-from .models import Employee, CommEdge, CommEvent, Task, Board, BoardColumn, BoardCard
+from .models import (
+    Employee,
+    CommEdge,
+    CommEvent,
+    Task,
+    Board,
+    BoardColumn,
+    BoardCard,
+    ChangeLog,
+)
 from .graph import graph_summary, build_knowledge_graph, build_department_graph
 
 
@@ -57,6 +66,16 @@ class TaskIn(BaseModel):
     labels: list[str]
     related_topic: str
     parent_board_id: int | None = None
+
+
+class ChangeLogIn(BaseModel):
+    action: str
+    entity_type: str
+    entity_id: str | None = None
+    before_json: dict | None = None
+    after_json: dict | None = None
+    evidence: str | None = None
+    source: str
 
 
 
@@ -411,6 +430,55 @@ def api_board(board_id: int):
                 for c in cards
             ],
         }
+    finally:
+        session.close()
+
+
+@app.get("/api/change-log")
+def api_change_log():
+    session = get_session()
+    try:
+        entries = session.query(ChangeLog).order_by(desc(ChangeLog.created_at)).all()
+        return [
+            {
+                "id": e.id,
+                "action": e.action,
+                "entity_type": e.entity_type,
+                "entity_id": e.entity_id,
+                "before_json": json.loads(e.before_json) if e.before_json else None,
+                "after_json": json.loads(e.after_json) if e.after_json else None,
+                "evidence": e.evidence,
+                "source": e.source,
+                "created_at": e.created_at.isoformat(),
+            }
+            for e in entries
+        ]
+    finally:
+        session.close()
+
+
+@app.post("/api/change-log")
+def api_create_change_log(payload: ChangeLogIn):
+    session = get_session()
+    try:
+        entry = ChangeLog(
+            action=payload.action,
+            entity_type=payload.entity_type,
+            entity_id=payload.entity_id,
+            before_json=json.dumps(payload.before_json)
+            if payload.before_json is not None
+            else None,
+            after_json=json.dumps(payload.after_json)
+            if payload.after_json is not None
+            else None,
+            evidence=payload.evidence,
+            source=payload.source,
+            created_at=datetime.utcnow(),
+        )
+        session.add(entry)
+        session.commit()
+        session.refresh(entry)
+        return {"id": entry.id}
     finally:
         session.close()
 

@@ -42,6 +42,8 @@ uvicorn backend.main:app --reload
 - `PUT /api/tasks/{id}`
 - `GET /api/boards`
 - `GET /api/boards/{id}`
+- `GET /api/change-log`
+- `POST /api/change-log`
 
 ### JSON API Payloads
 Base URL (prod): `https://hacknation-openai-challenge.onrender.com`
@@ -104,6 +106,21 @@ Tasks
 Boards
 - `GET /api/boards` returns all boards.
 - `GET /api/boards/{id}` returns board details with columns and cards.
+
+Change Log
+- `GET /api/change-log` returns all change log entries.
+- `POST /api/change-log` payload:
+```json
+{
+  "action": "update",
+  "entity_type": "task",
+  "entity_id": "42",
+  "before_json": {"status": "todo"},
+  "after_json": {"status": "in_progress"},
+  "evidence": "Moved to In Progress",
+  "source": "agent"
+}
+```
 
 ## DB Init (Prod-safe)
 Run once to create missing tables without dropping data:
