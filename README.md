@@ -17,7 +17,7 @@ The system captures communications and tasks in a database, exposes them through
 - an external agent to update records, log changes, and notify stakeholders.
 
 ## System Architecture
-![System Architecture](assets/system_architecture.svg)
+![System Architecture](assets/system_architecture.png)
 
 ## Repository Structure
 - `backend/` — FastAPI backend, database models, API routes, seed script
