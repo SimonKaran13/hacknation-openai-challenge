@@ -121,3 +121,33 @@ class BoardCard(Base):
     board = relationship("Board")
     task = relationship("Task")
     column = relationship("BoardColumn")
+
+
+class Decision(Base):
+    __tablename__ = "decisions"
+
+    id = Column(Integer, primary_key=True)
+    text = Column(Text, nullable=False)
+    decided_at = Column(DateTime, nullable=False, default=datetime.utcnow)
+    teams = Column(Text, nullable=False)
+    owner_id = Column(Integer, ForeignKey("employees.id"), nullable=True)
+    source = Column(String, nullable=False)
+    evidence = Column(Text, nullable=True)
+    version = Column(String, nullable=True)
+    created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
+
+    owner = relationship("Employee")
+
+
+class ChangeLog(Base):
+    __tablename__ = "change_log"
+
+    id = Column(Integer, primary_key=True)
+    action = Column(String, nullable=False)
+    entity_type = Column(String, nullable=False)
+    entity_id = Column(String, nullable=True)
+    before_json = Column(Text, nullable=True)
+    after_json = Column(Text, nullable=True)
+    evidence = Column(Text, nullable=True)
+    source = Column(String, nullable=False)
+    created_at = Column(DateTime, nullable=False, default=datetime.utcnow)

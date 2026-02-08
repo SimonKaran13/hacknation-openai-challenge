@@ -105,6 +105,12 @@ Boards
 - `GET /api/boards` returns all boards.
 - `GET /api/boards/{id}` returns board details with columns and cards.
 
+## DB Init (Prod-safe)
+Run once to create missing tables without dropping data:
+```bash
+python -m backend.app.init_db
+```
+
 ## CLI
 ```bash
 python -m backend.app.cli graph-summary

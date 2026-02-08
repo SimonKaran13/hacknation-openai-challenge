@@ -324,6 +324,8 @@ def seed_boards_and_tasks(session):
 def main():
     DATA_DIR.mkdir(parents=True, exist_ok=True)
     Base.metadata.drop_all(bind=engine)
+    with engine.begin() as conn:
+        conn.exec_driver_sql("DROP TABLE IF EXISTS notifications")
     Base.metadata.create_all(bind=engine)
 
     session = SessionLocal()

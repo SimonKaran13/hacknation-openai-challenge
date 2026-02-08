@@ -59,6 +59,8 @@ class TaskIn(BaseModel):
     parent_board_id: int | None = None
 
 
+
+
 @app.get("/api/graph/employees")
 def api_employees():
     session = get_session()
